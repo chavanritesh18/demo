@@ -1,0 +1,98 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+header{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background:linear-gradient(#fff 30% , #2d3436 70%);
+}
+nav{
+    width: 100%;
+    height: 100px;
+    /* background: green; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+}
+.menu a{
+    text-decoration:  none;
+    color: black;
+    padding:10px 20px ;
+    font-size: 20px;
+    font-family: sans-serif;
+    transition: 0.4s;
+}
+
+.menu a:last-child{
+    background: #262626;
+    color: white;
+    
+    border-radius: 8px;
+}
+
+.menu a:last-child:hover{
+    background-color: grey;
+}
+
+.menu a:hover{
+    background-color: #262626;
+    color: white;
+    border-radius: 8px;
+}
+
+#table{
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+
+}
+
+.hText{
+    font-family: sans-serif;
+    position: absolute;
+    top: 30%;
+    left: 5%;
+}
+
+.hText h1{
+    font-size: 4em;
+}
+
+.hText h2{
+    font-size: 2em;
+    line-height: 2em;
+}
+
+.hText h1 span{
+    color: red;
+}
+/* 
+.hText a {
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    background:#d63031 ;
+    padding: 10ox 20px;
+    border-radius: 8px;
+} */
+
+button{
+    font-family: sans-serif;
+    font-size: 20px;
+    color: red;
+    background-color:rgb(75, 238, 69);
+    border:5px solid black;
+    border-radius: 8px;
+}
+
+#person{
+  position: absolute;
+  bottom: 5%;
+  left: 15%;
+}
+

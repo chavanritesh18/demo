@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Language to SQL - AI Query Generator</title>
+    <meta name="description" content="Transform natural language into SQL queries using Claude 3.5 Sonnet. Write database queries effortlessly with AI assistance.">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAMwSURBVFiF7ZdNiFVlGMd/z3vOvXfuODN3xhkdx/kyw0YUSiryI0pCEAmCFrWoTRC0qEWBEYhYm2hTENUiKGgRFLUxaGEQFUEFWSh+NqON4ziOOuN8eM/HPe95WtwZHWfuGO4dN9KCZ3Ue/v/z/z3nfc95z3nhf/xbEEWRFkXRQhH5SET6/+nkACLSLiL7ReQpEWn9J8XHRWS3iPSKyC4RuTdN0wX/lHiXiHwsIveJSEZEOkXkgIh0/J3iC0TkYxHZ+gfxBSLyoYi0/R3iS0XkMxF5ICJNxpgwDMNMFEXhDNFmEflARNrnU7xLRA6KyOMR0R8RzUTEiIgVERtFkf2Vf4eIfCgiXfMhvkJEPhWRh0VEi4hSSomIUkrJrJ8REQnD0LuZ/2IR+UBEls1FvEdEDonIJhHRWVFrrbLWqrIs1RTTWiuttdZa6ziOJ5VSE8aYL4DnrbUXb0W8V0QOi8gGEdFKKR3HsQnDsJ4kyXwNwVhrieM4c85dAp4zxpyfTfwxETkiImtFRCulVJIkJo7j+mwJtdYqiiKbJMl159xBY8wrs4k/ISJfiUiPUkqnaWqSJKnXajVTq9VMkiSmXq/bJElsURQ2yzKXZZnL89zlee7yPHdFUbgsy12WZS7Pc1cUhSuKwuV57vI8d1mWuTzPXVmWrixLV5alK4rCFUXhyrJ0RVG4oihcnucuz3OX57krioK+vr6r1tpXjTGHfxbv6+s7KCIPpWlqkiSp12q1eq1WM/V63aRpapIksWma2jRN7dTvNE1tkiQ2SRKbJIlN09SmaWrTNLVpmtokSWyapjZJEpskiU2SxMZxbOM4tnEc2ziObRRFNooi2/D7RGS5iJwQkU0iYowxrigKl+e5y/PcFUXhiqJwZVm6sizdVPKyLF1Zlq4sS1cUhSuKwhVF4YqicHmeuyzLXJZlLssyl2WZy7LMZVnmsixzWZa5LMtcnucuyzKXZZnL89wVReHKsnRlWbqiKFxRFK4oCpfnucvz3GVZ5vI8d1mWuTzPXZ7nLssyl2WZy7LM5Xnu8jx3eZ67oihcURSuLEtXlqUry9IVRVH09vZeFJFnRKRbRE6KyBYRMbcjMP8B3xWb0tn4LZ4AAAAASUVORK5CYII=">
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Natural Language to SQL</h1>
+            <p class="text-lg text-gray-600">Transform your questions into SQL queries using AI</p>
+        </header>
+
+        <main class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-6">
+                    <label for="query" class="block text-sm font-medium text-gray-700 mb-2">Your Question</label>
+                    <textarea 
+                        id="query"
+                        v-model="userQuery"
+                        @keyup.ctrl.enter="generateSQL"
+                        class="w-full h-32 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Example: Show me all customers who made purchases over $1000 in the last month"
+                    ></textarea>
+                </div>
+
+                <div class="flex justify-between items-center mb-6">
+                    <button 
+                        @click="generateSQL"
+                        :disabled="isLoading || !userQuery"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span v-if="!isLoading">Generate SQL</span>
+                        <span v-else class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
+                    </button>
+                    <span class="text-sm text-gray-500">Press Ctrl+Enter to generate</span>
+                </div>
+
+                <div v-if="sqlQuery" class="mt-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Generated SQL Query:</h2>
+                    <div class="bg-gray-800 rounded-lg p-4 overflow-x-auto">
+                        <pre class="text-green-400 font-mono text-sm whitespace-pre-wrap">{{ sqlQuery }}</pre>
+                    </div>
+                </div>
+
+                <div v-if="error" class="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                    {{ error }}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { SDK } from "https://webdraw.com/webdraw-sdk@v1";
+
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    userQuery: '',
+                    sqlQuery: '',
+                    isLoading: false,
+                    error: null,
+                    sdk: SDK
+                }
+            },
+            methods: {
+                async generateSQL() {
+                    if (!this.userQuery || this.isLoading) return;
+                    
+                    this.isLoading = true;
+                    this.error = null;
+                    this.sqlQuery = '';
+
+                    try {
+                        const response = await this.sdk.fetch("https://webdraw.com/api/generate?task=text", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                model: "anthropic:claude-3-5-sonnet-latest",
+                                system: "You are an expert SQL query generator. Convert natural language questions into precise, efficient SQL queries. Include helpful comments explaining the query logic.",
+                                messages: [{
+                                    role: "user",
+                                    content: `Convert this question into a SQL query: ${this.userQuery}`
+                                }]
+                            })
+                        });
+
+                        const data = this.safeJSONParse(response);
+                        this.sqlQuery = data.text;
+                    } catch (err) {
+                        this.error = err.message || 'An error occurred while generating the SQL query';
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                safeJSONParse(response) {
+                    if (response.status < 400 && response.status >= 200) {
+                        return JSON.parse(response.body);
+                    }
+                    const error = typeof response.body === "string" ? { message: response.body } : response.body;
+                    throw error;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
